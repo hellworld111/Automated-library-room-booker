@@ -105,7 +105,7 @@ def generate_time_slots(start_time, end_time):
     return slots
 
 #MAIN PROBLEM: THE SLOTS ARE ALREADY BOOKED!
-def bookrooms(block,child_div):
+def bookrooms(block,child_div,First_name,Last_name,Email):
     # Re-find elements in each loop iteration to avoid stale element issues
     try:
         WebDriverWait(driver, 10).until(
@@ -130,7 +130,7 @@ def bookrooms(block,child_div):
                     print(cleaned_time)
                     if cleaned_time in time_slots:
                         print(f"Booking slot: {cleaned_time}")
-                        # input_credentials(key_name)
+                        # input_credentials(key_name,First_name,Last_name,Email)
                         time_slots.remove(cleaned_time)
 
                     if not time_slots:  # Stop if all required slots are booked
@@ -161,12 +161,11 @@ def round_to_nearest_30(time_str):
         time_obj = time_obj.replace(minute=0) + timedelta(hours=1)
     return time_obj.strftime("%-H:%M")
 
-def input_credentials(div):
+def input_credentials(div,First_name,Last_name,Email):
     time.sleep(0.5)
     div.click()
     #Works until here in the second trial
     def send_keys_if_exists():
-        global First_name,Last_name,Email
         input_values = {
             0: First_name,
             1: Last_name,
@@ -200,9 +199,9 @@ def is_later(time1, time2):
     
     return t1 > t2
 
-def checkrooms(blocks):
+def checkrooms(blocks,First_name,Last_name,Email):
     time.sleep(5)
-    for block in blocks:# CONVERT ALL OFF BLOCK ETIME AND STIME TO THE STANDARDIZED TIME, 1:00 or 2:00, not 9:25:00 or 11:00:00
+    for block in blocks[:4]:# CONVERT ALL OFF BLOCK ETIME AND STIME TO THE STANDARDIZED TIME, 1:00 or 2:00, not 9:25:00 or 11:00:00
         MAX_ATTEMPTS = 10
         attempt = 0
         if block.sTime == None and block.eTime == None:
@@ -247,7 +246,7 @@ def checkrooms(blocks):
                         print("PROBLEM IN HERE")
                         print(aria_label)
                         print("about to book")
-                        bookrooms(block, child)
+                        bookrooms(block, child,First_name,Last_name,Email)
                         print("\n"+ block.sTime+"\n")#PROBLEM: The child variable that is passed in bookrooms is empty
                         base_condition = True
                         break
@@ -258,6 +257,5 @@ def checkrooms(blocks):
                 print("clicked")
 
     # After the base_condition is met, the outer loop will move to the next block
-
 
 #Func that checks if clickable

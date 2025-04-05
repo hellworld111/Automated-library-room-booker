@@ -13,10 +13,12 @@ import json
 from datetime import datetime, timedelta
 from datetime import datetime
 import Booker
-from flask import Flask, request, render_template
-import time
-username = "27igarashiy@asij.ac.jp"
-password = "mr.smarty pants"
+username = None
+password = None
+
+First_name = None
+Last_name = None
+
 days_in_week = {
     1: False,
     2: True,
@@ -249,7 +251,7 @@ def scraper(json_file,session_ID,url):
         print("\n")
     #Make sure the day variable is a numeric
     Booker.openwindow()
-    Booker.checkrooms(class_array)
+    Booker.checkrooms(class_array,First_name,Last_name,username)
 
         # get_day_of_week(json_file,url,cookies,commtime,instance)
 
@@ -260,8 +262,8 @@ def scraper(json_file,session_ID,url):
 
 def credentials() -> None:
     global username,password
-    username ='27igarashiy@asij.ac.jp'
-    password = 'mr.smarty pants'
+    username = input("Enter username:")
+    password = input("Enter password:")
 
 def retrieveID(driver):
     time.sleep(5)
@@ -283,10 +285,19 @@ def update_date_in_url(url):
     updated_url = re.sub(r"\d{8}(?=$)", today_str, url)
     print(updated_url +"THE DATE OF TODAY")
     return updated_url
-
+def split_full_name(full_name):
+    parts = full_name.strip().split()
+    if len(parts) >= 2:
+        first_name = parts[0]
+        last_name = ' '.join(parts[1:])
+    else:
+        first_name = parts[0]
+        last_name = ''
+    return first_name, last_name
 def fetch_json(driver):
     session_ID = retrieveID(driver)
     student_ID = retrieveStudentID(driver)
+    global First_name,Last_name
     cookies = {
             'session_id_edsby': session_ID  # Use the session_id you retrieved
         }
@@ -298,6 +309,9 @@ def fetch_json(driver):
         print(response.json())
     else:
         print("failed to fetch page")
+    data = response.json()
+    name = data["slices"][0]["data"]["sidebar"]["wrap"]["controls"]["user"]["content"]["who"]["name"]
+    First_name, Last_name = split_full_name(name)
     scraper(response.json(),session_ID,url)#use resppnse 
     
 
